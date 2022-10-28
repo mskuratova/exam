@@ -1,14 +1,20 @@
 import './App.css';
 import './index.css';
-import axios from 'axios'
+import axios, {AxiosError} from 'axios'
 import React, { useEffect, useState } from 'react'
 import ReactDOM from "react-dom";
-import { applyMiddleware, combineReducers, legacy_createStore as createStore } from 'redux'
+import {
+    applyMiddleware,
+    combineReducers,
+    Dispatch,
+    legacy_createStore as createStore
+} from 'redux'
 import { Provider, TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 
 import thunk, { ThunkAction, ThunkDispatch } from 'redux-thunk';
+import {isDisabled} from "@testing-library/user-event/dist/utils";
 
-function App() {
+// function App() {
 //1
  // Types
  //    type PhotoType = {
@@ -18,10 +24,8 @@ function App() {
  //        url: string
  //        thumbnailUrl: string
  //    }
-
 // Api
 //     const instance = axios.create({baseURL: 'https://jsonplaceholder.typicode.com/'})
-//
 //     const photosAPI = {
 //         async getPhotos() {
 //             // Имитация длительного запроса, чтобы была видна крутилка
@@ -30,50 +34,49 @@ function App() {
 //         },
 //     }
 
-
 // Reducer
 //     const initState = {
 //         isLoading: false,
 //         photos: [] as PhotoType[]
 //     }
-//
-//     type InitStateType = typeof initState
-//
-//     const photoReducer = (state: InitStateType = initState, action: ActionsType): InitStateType => {
-//         switch (action.type) {
-//             case 'PHOTO/GET-PHOTOS':
-//                 return {...state, photos: action.photos}
-//             case 'PHOTO/IS-LOADING':
-//                 // return {...state, isLoading: action.isLoading}
-//                 return {...state, isLoading: false}
-//             default:
-//                 return state
-//         }
-//     }
-//
-//     const getPhotosAC = (photos: PhotoType[]) => ({type: 'PHOTO/GET-PHOTOS', photos} as const)
-//     const setLoadingAC = (isLoading: boolean) => ({type: 'PHOTO/IS-LOADING', isLoading} as const)
-//     type ActionsType = ReturnType<typeof getPhotosAC> | ReturnType<typeof setLoadingAC>
-//
-//     const getPhotosTC = (): AppThunk => (dispatch) => {
-//         dispatch(setLoadingAC(true))
-//         photosAPI.getPhotos()
-//             .then((res) => {
-//                 dispatch(getPhotosAC(res.data))
-//             })
-//     }
+
+    // type InitStateType = typeof initState
+    //
+    // const photoReducer = (state: InitStateType = initState, action: ActionsType): InitStateType => {
+    //     switch (action.type) {
+    //         case 'PHOTO/GET-PHOTOS':
+    //             return {...state, photos: action.photos}
+    //         case 'PHOTO/IS-LOADING':
+    //              return {...state, isLoading: action.isLoading}
+    //             //return {...state, isLoading: false}
+    //         default:
+    //             return state
+    //     }
+    // }
+    // const getPhotosAC = (photos: PhotoType[]) => ({type: 'PHOTO/GET-PHOTOS', photos} as const)
+    // const setLoadingAC = (isLoading: boolean) => ({type: 'PHOTO/IS-LOADING', isLoading} as const)
+    // type ActionsType = ReturnType<typeof getPhotosAC> | ReturnType<typeof setLoadingAC>
+    //
+    // const getPhotosTC = (): AppThunk => (dispatch) => {
+    //     dispatch(setLoadingAC(true))
+    //     photosAPI.getPhotos()
+    //         .then((res) => {
+    //             dispatch(getPhotosAC(res.data))
+    //             dispatch(setLoadingAC(false)) ///Внимание
+    //         })
+    // }
 
 // Store
 //     const rootReducer = combineReducers({
 //         photo: photoReducer
 //     })
-//
-//     const store = createStore(rootReducer, applyMiddleware(thunk))
-//     type RootState = ReturnType<typeof store.getState>
-//     type AppDispatch = ThunkDispatch<RootState, unknown, ActionsType>
-//     type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, ActionsType>
-//     const useAppDispatch = () => useDispatch<AppDispatch>()
-//     const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
+
+    // const store = createStore(rootReducer, applyMiddleware(thunk))
+    // type RootState = ReturnType<typeof store.getState>
+    // type AppDispatch = ThunkDispatch<RootState, unknown, ActionsType>
+    // type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, ActionsType>
+    // const useAppDispatch = () => useDispatch<AppDispatch>()
+    // const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
 
 
 // Loader
@@ -92,26 +95,27 @@ function App() {
 //         const getPhotosHandler = () => {
 //             dispatch(getPhotosTC())
 //         };
-//
-//         return (
-//             <>
-//                 <h1>📸 Фото</h1>
-//                 {isLoading && <Loader/>}
-//                 {
-//                     photos.map(p => {
-//                         return <div key={p.id}>
-//                             <b>title</b>: {p.title}
-//                             <div><img src={p.thumbnailUrl} alt=""/></div>
-//                         </div>
-//                     })
-//                 }
-//                 <button onClick={getPhotosHandler}>Подгрузить фотографии</button>
-//             </>
-//         )
-//     }
+
+    //     return (
+    //         <>
+    //             <h1>📸 Фото</h1>
+    //             {isLoading && <Loader/>}
+    //             {
+    //                 photos.map(p => {
+    //                     return <div key={p.id}>
+    //                         <b>title</b>: {p.title}
+    //                         <div><img src={p.thumbnailUrl} alt=""/></div>
+    //                     </div>
+    //                 })
+    //             }
+    //             <button onClick={getPhotosHandler}>Подгрузить фотографии</button>
+    //         </>
+    //     )
+    // }
 
 
 // ReactDOM.render(<Provider store={store}> <App/></Provider>, document.getElementById('root'))
+//     // @ts-ignore
 //     const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 //     root.render(<Provider store={store}> <App/></Provider>)
 
@@ -146,7 +150,6 @@ function App() {
 
 // Api
 //     const instance = axios.create({baseURL: 'https://jsonplaceholder.typicode.com/'})
-//
 //     const todosAPI = {
 //         getTodos() {
 //             return instance.get('todos?_limit=15')
@@ -175,10 +178,10 @@ function App() {
 //                         return {...t, isDisabled: false}
 //                     })
 //                 }
-//
-//             case 'TODOS/DELETE-TODO':
-//                 return {...state, todos: state.todos.filter(t => t.id !== action.id)}
 
+    //         case 'TODOS/DELETE-TODO':
+    //             return {...state, todos: state.todos.filter(t => t.id !== action.id)}
+    //
     //         case 'TODOS/IS-LOADING':
     //             return {...state, isLoading: action.isLoading}
     //
@@ -215,28 +218,29 @@ function App() {
 //                 dispatch(getTodosAC(res.data))
 //             })
 //     }
-
-    // const deleteTodoTC = (id: number): AppThunk => (dispatch) => {
-    //     dispatch(setIsDisabled(true, id))
-    //     dispatch(setLoadingAC(true))
-    //     todosAPI.deleteTodo(id)
-    //         .then((res) => {
-    //             dispatch(deleteTodoAC(id))
-    //             dispatch(setLoadingAC(false))
-    //         })
-    // }
+//
+//     const deleteTodoTC = (id: number): AppThunk => (dispatch) => {
+//         dispatch(setIsDisabled(true, id))
+//
+//         dispatch(setLoadingAC(true))
+//         todosAPI.deleteTodo(id)
+//             .then((res) => {
+//                 dispatch(deleteTodoAC(id))
+//                 dispatch(setLoadingAC(false))
+//             })
+//     }
 
 // Store
 //     const rootReducer = combineReducers({
 //         todos: todosReducer,
 //     })
-//
-//     const store = createStore(rootReducer, applyMiddleware(thunk))
-//     type RootState = ReturnType<typeof store.getState>
-//     type AppDispatch = ThunkDispatch<RootState, unknown, ActionsType>
-//     type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, ActionsType>
-//     const useAppDispatch = () => useDispatch<AppDispatch>()
-//     const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
+
+    // const store = createStore(rootReducer, applyMiddleware(thunk))
+    // type RootState = ReturnType<typeof store.getState>
+    // type AppDispatch = ThunkDispatch<RootState, unknown, ActionsType>
+    // type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, ActionsType>
+    // const useAppDispatch = () => useDispatch<AppDispatch>()
+    // const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
 
 
 // Loader
@@ -257,6 +261,7 @@ function App() {
 //         }, [])
 //
 //         const deleteTodoHandler = (id: number) => {
+//             // dispatch(setIsDisabled(false, id)) ///Внимание
 //             dispatch(deleteTodoTC(id))
 //         };
 //
@@ -265,28 +270,28 @@ function App() {
 //                 <div style={{position: 'absolute', top: '0px'}}>
 //                     {isLoading && <Loader/>}
 //                 </div>
-//                 <div style={{marginTop: '100px'}}>
-//                     <h2>✅ Список тудулистов</h2>
-//                     {
-//                         todos.map((t) => {
-//                             return (
-//                                 <div style={t.completed ? {color: 'grey'} : {}} key={t.id}>
-//                                     <input type="checkbox" defaultChecked={t.completed}/>
-//                                     <b>Описание</b>: {t.title}
-//                                     <button
-//                                         style={{marginLeft: '20px'}}
-//                                         onClick={() => deleteTodoHandler(t.id)}>
-//                                         Удалить тудулист
-//                                     </button>
-//                                 </div>
-//                             )
-//                         })
-//                     }
-//                 </div>
-//             </div>
-//         )
-//     }
-//
+    {/*            <div style={{marginTop: '100px'}}>*/}
+    {/*                <h2>✅ Список тудулистов</h2>*/}
+    {/*                {*/}
+    {/*                    todos.map((t) => {*/}
+    {/*                        return (*/}
+    {/*                            <div style={t.completed ? {color: 'grey'} : {}} key={t.id}>*/}
+    {/*                                <input type="checkbox" defaultChecked={t.completed}/>*/}
+    {/*                                <b>Описание</b>: {t.title}*/}
+    {/*                                <button*/}
+    {/*                                    style={{marginLeft: '20px'}}*/}
+    {/*                                    onClick={() => deleteTodoHandler(t.id) }>*/}
+    {/*                                    Удалить тудулист*/}
+    {/*                                </button>*/}
+    {/*                            </div>*/}
+    {/*                        )*/}
+    {/*                    })*/}
+    {/*                }*/}
+    {/*            </div>*/}
+    {/*        </div>*/}
+    {/*    )*/}
+    {/*}*/}
+// @ts-ignore
 //     const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 //     root.render(<Provider store={store}> <App/></Provider>)
 
@@ -335,19 +340,19 @@ function App() {
 //     }
 //
 //     type InitStateType = typeof initState
-//
-//     const appReducer = (state: InitStateType = initState, action: ActionsType): InitStateType => {
-//         switch (action.type) {
-//             case 'POSTS/GET-POSTS':
-//                 return {...state, posts: action.posts}
-//
-//             case 'POSTS/SET-ERROR':
-//                 return {...state, error: action.error}
-//
-//             default:
-//                 return state
-//         }
-//     }
+    //
+    // const appReducer = (state: InitStateType = initState, action: ActionsType): InitStateType => {
+    //     switch (action.type) {
+    //         case 'POSTS/GET-POSTS':
+    //             return {...state, posts: action.posts}
+    //
+    //         case 'POSTS/SET-ERROR':
+    //             return {...state, error: action.error}
+    //
+    //         default:
+    //             return state
+    //     }
+    // }
 
 
     // const getPostsAC = (posts: PostType[]) => ({type: 'POSTS/GET-POSTS', posts} as const)
@@ -361,6 +366,7 @@ function App() {
 //                 dispatch(getPostsAC(res.data))
 //             })
 //             .catch((e: AxiosError) => {
+//                 dispatch(setError(e.message))///Внимание
 //             })
 //     }
 
@@ -369,46 +375,46 @@ function App() {
 //     const rootReducer = combineReducers({
 //         app: appReducer,
 //     })
-
-    // const store = createStore(rootReducer, applyMiddleware(thunk))
-    // type RootState = ReturnType<typeof store.getState>
-    // type AppDispatch = ThunkDispatch<RootState, unknown, ActionsType>
-    // type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, ActionsType>
-    // const useAppDispatch = () => useDispatch<AppDispatch>()
-    // const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
+//
+//     const store = createStore(rootReducer, applyMiddleware(thunk))
+//     type RootState = ReturnType<typeof store.getState>
+//     type AppDispatch = ThunkDispatch<RootState, unknown, ActionsType>
+//     type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, ActionsType>
+//     const useAppDispatch = () => useDispatch<AppDispatch>()
+//     const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
 
 
 // Components
 //     const App = () => {
-        //
-        // const dispatch = useAppDispatch()
-        //
-        // const posts = useAppSelector(state => state.app.posts)
-        // const error = useAppSelector(state => state.app.error)
-        //
-        // useEffect(() => {
-        //     dispatch(getPostsTC())
-        // }, [])
+//
+//         const dispatch = useAppDispatch()
+//
+//         const posts = useAppSelector(state => state.app.posts)
+//         const error = useAppSelector(state => state.app.error)
+//
+//         useEffect(() => {
+//             dispatch(getPostsTC())
+//         }, [])
 
-    //     return (
-    //         <>
-    //             <h1>📜 Список постов</h1>
-    //             {
-    //                 posts.length
-    //                     ?
-    //                     posts.map(c => {
-    //                         return <div key={c.id}><b>Описание</b>: {c.body} </div>
-    //                     })
-    //                     :
-    //                     <h3>❌ Посты не подгрузились. Произошла какая-то ошибка. Выведите сообщение об ошибке на экран</h3>
-    //             }
-    //             <h2 style={{color: 'red'}}>{!!error && error}</h2>
-    //         </>
-    //     )
-    // }
-
-    // const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
-    // root.render(<Provider store={store}> <App/></Provider>)
+//         return (
+//             <>
+//                 <h1>📜 Список постов</h1>
+//                 {
+//                     posts.length
+//                         ?
+//                         posts.map(c => {
+//                             return <div key={c.id}><b>Описание</b>: {c.body} </div>
+//                         })
+//                         :
+//                         <h3>❌ Посты не подгрузились. Произошла какая-то ошибка. Выведите сообщение об ошибке на экран</h3>
+//                 }
+//                 <h2 style={{color: 'red'}}>{!!error && error}</h2>
+//             </>
+//         )
+//     }
+// // @ts-ignore
+//     const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+//     root.render(<Provider store={store}> <App/></Provider>)
 
 // Описание:
 // ❌ Посты не подгрузились. Произошла какая-то ошибка.
@@ -453,19 +459,18 @@ function App() {
 //     }
 //
 //     type InitStateType = typeof initState
-//
-//     const appReducer = (state: InitStateType = initState, action: ActionsType): InitStateType => {
-//         switch (action.type) {
-//             case 'APP/SET-IS-LOGGED-IN':
-//                 return {...state, isLoggedIn: action.isLoggedIn}
-//             case 'APP/IS-LOADING':
-//                 return {...state, isLoading: action.isLoading}
-//             case 'APP/SET-ERROR':
-//                 return {...state, error: action.error}
-//             default:
-//                 return state
-//         }
-//     }
+    // const appReducer = (state: InitStateType = initState, action: ActionsType): InitStateType => {
+    //     switch (action.type) {
+    //         case 'APP/SET-IS-LOGGED-IN':
+    //             return {...state, isLoggedIn: action.isLoggedIn}
+    //         case 'APP/IS-LOADING':
+    //             return {...state, isLoading: action.isLoading}
+    //         case 'APP/SET-ERROR':
+    //             return {...state, error: action.error}
+    //         default:
+    //             return state
+    //     }
+    // }
 
 // Actions
 //     const setIsLoggedIn = (isLoggedIn: boolean) => ({type: 'APP/SET-IS-LOGGED-IN', isLoggedIn} as const)
@@ -482,6 +487,8 @@ function App() {
 //                 alert('Вы залогинились успешно')
 //             })
 //             .catch((e) => {
+//                 console.log(e.request.response)
+//                 dispatch(setError(e.request.response))///Внимание
 //             })
 //             .finally(() => {
 //                 dispatch(setLoadingAC(false))
@@ -503,13 +510,13 @@ function App() {
 
 
 // Loader
-//     export const Loader = () => {
+//     const Loader = () => {
 //         return <h1>Loading ...</h1>
 //     }
 
 
 // App
-//     export const App = () => {
+//    const App = () => {
 //
 //         const dispatch = useAppDispatch()
 //
@@ -517,47 +524,47 @@ function App() {
 //
 //         const error = useAppSelector(state => state.app.error)
 //         const isLoading = useAppSelector(state => state.app.isLoading)
+//
+//         const changeFormValuesHandler = (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
+//             if (field === 'email') {
+//                 setForm({...form, email: e.currentTarget.value})
+//             }
+//             if (field === 'password') {
+//                 setForm({...form, password: e.currentTarget.value})
+//             }
+//         };
+//
+//         const submitForm = (e: React.MouseEvent<HTMLButtonElement>) => {
+//             e.preventDefault()
+//             dispatch(loginTC(form))
+//         };
 
-        // const changeFormValuesHandler = (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
-        //     if (field === 'email') {
-        //         setForm({...form, email: e.currentTarget.value})
-        //     }
-        //     if (field === 'password') {
-        //         setForm({...form, password: e.currentTarget.value})
-        //     }
-        // };
-        //
-        // const submitForm = (e: React.MouseEvent<HTMLButtonElement>) => {
-        //     e.preventDefault()
-        //     dispatch(loginTC(form))
-        // };
-        //
-        // return (
-        //     <div>
-        //         {!!error && <h2 style={{color: 'red'}}>{error}</h2>}
-        //         {isLoading && <Loader/>}
-        //         <form>
-        //             <div>
-        //                 <input placeholder={'Введите email'}
-        //                        value={form.email}
-        //                        onChange={(e) => changeFormValuesHandler(e, 'email')}
-        //                 />
-    {/*                </div>*/}
-    {/*                <div>*/}
-    {/*                    <input type={'password'}*/}
-    {/*                           placeholder={'Введите пароль'}*/}
-    {/*                           value={form.password}*/}
-    {/*                           onChange={(e) => changeFormValuesHandler(e, 'password')}*/}
-    {/*                    />*/}
-    {/*                </div>*/}
-    {/*                <button type="submit" onClick={submitForm}>Залогиниться</button>*/}
-    {/*            </form>*/}
-    {/*        </div>*/}
-    {/*    );*/}
-    {/*}*/}
-
-    {/*const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);*/}
-    {/*root.render(<Provider store={store}> <App/></Provider>)*/}
+    //     return (
+    //         <div>
+    //             {!!error && <h2 style={{color: 'red'}}>{error}</h2>}
+    //             {isLoading && <Loader/>}
+    //             <form>
+    //                 <div>
+    //                     <input placeholder={'Введите email'}
+    //                            value={form.email}
+    //                            onChange={(e) => changeFormValuesHandler(e, 'email')}
+    //                     />
+    //                 </div>
+    //                 <div>
+    //                     <input type={'password'}
+    //                            placeholder={'Введите пароль'}
+    //                            value={form.password}
+    //                            onChange={(e) => changeFormValuesHandler(e, 'password')}
+    //                     />
+    //                 </div>
+    //                 <button type="submit" onClick={submitForm}>Залогиниться</button>
+    //             </form>
+    //         </div>
+    //     );
+    // }
+// @ts-ignore
+//     const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+//     root.render(<Provider store={store}> <App/></Provider>)
 
 // Описание:
 // Перед вами форма логинизации. Введите любые логин и пароль и попробуйте залогиниться.
@@ -576,8 +583,6 @@ function App() {
 //     import { Provider, TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 //     import thunk, { ThunkAction, ThunkDispatch } from 'redux-thunk'
 //     import axios, { AxiosError } from 'axios';
-//
-//
 // // Types
 //     type CommentType = {
 //         postId: number
@@ -586,39 +591,38 @@ function App() {
 //         email: string
 //         body: string
 //     }
-
-// Api
+// // Api
 //     const instance = axios.create({
 //         baseURL: 'https://jsonplaceholder.typicode.com/'
 //     })
-//
 //     const commentsAPI = {
 //         getComments() {
-//             return instance.get<CommentType[]>('commentaries')
+//             // return instance.get<CommentType[]>('commentaries')
+//             return instance.get<CommentType[]>('comments') ///Внимание
 //         }
 //     }
-//
-// // Reducer
+
+// Reducer
 //     const initState = {
 //         comments: [] as CommentType[]
-    // }
+//     }
+//     //
+//     type InitStateType = typeof initState
+//
+//     const appReducer = (state: InitStateType = initState, action: ActionsType) => {
+//         switch (action.type) {
+//             case 'COMMENTS/GET-COMMENTS':
+//                 return {...state, comments: action.comments}
+//
+//             default:
+//                 return state
+//         }
+//     }
     //
-    // type InitStateType = typeof initState
-    //
-    // const appReducer = (state: InitStateType = initState, action: ActionsType) => {
-    //     switch (action.type) {
-    //         case 'COMMENTS/GET-COMMENTS':
-    //             return {...state, comments: action.comments}
-    //
-    //         default:
-    //             return state
-    //     }
-    // }
-    //
-    // const getCommentsAC = (comments: CommentType[]) => ({type: 'COMMENTS/GET-COMMENTS', comments} as const)
-    // type ActionsType = ReturnType<typeof getCommentsAC>
-
-// Thunk
+//     const getCommentsAC = (comments: CommentType[]) => ({type: 'COMMENTS/GET-COMMENTS', comments} as const)
+//     type ActionsType = ReturnType<typeof getCommentsAC>
+//
+// // Thunk
 //     const getCommentsTC = (): AppThunk => (dispatch) => {
 //         commentsAPI.getComments()
 //             .then((res) => {
@@ -628,8 +632,6 @@ function App() {
 //                 alert(`Сообщение об ошибке: ${e.message}`)
 //             })
 //     }
-//
-//
 // // Store
 //     const rootReducer = combineReducers({
 //         app: appReducer,
@@ -641,10 +643,8 @@ function App() {
 //     type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, ActionsType>
 //     const useAppDispatch = () => useDispatch<AppDispatch>()
 //     const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
-
-
 // // Components
-//     export const App = () => {
+//      const App = () => {
 //
 //         const comments = useAppSelector(state => state.app.comments)
 //         const dispatch = useAppDispatch()
@@ -668,7 +668,7 @@ function App() {
     //         </>
     //     )
     // }
-    //
+    // @ts-ignore
     // const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
     // root.render(<Provider store={store}> <App/></Provider>)
 
@@ -711,14 +711,12 @@ function App() {
 //         },
 //     }
 
-
 // Reducer
 //     const initState = {
 //         isLoading: false,
 //         error: null as string | null,
 //         photos: [] as PhotoType[]
 //     }
-//
 //     type InitStateType = typeof initState
 //
 //     const appReducer = (state: InitStateType = initState, action: ActionsType): InitStateType => {
@@ -751,6 +749,7 @@ function App() {
     //         .catch((e: AxiosError) => {
     //             dispatch(setError(e.message))
     //         })
+    //         .finally(() => {dispatch(setLoadingAC(false))}) ///внимание
     // }
 
 // Store
@@ -764,48 +763,47 @@ function App() {
 //     type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, ActionsType>
 //     const useAppDispatch = () => useDispatch<AppDispatch>()
 //     const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
-//
-//
+
 // // Loader
-//     export const Loader = () => {
+//     const Loader = () => {
 //         return (
 //             <h1>Loading ...</h1>
 //         )
 //     }
-
-// // App
-//     const App = () => {
-//         const dispatch = useAppDispatch()
-//
-//         const photos = useAppSelector(state => state.app.photos)
-//         const isLoading = useAppSelector(state => state.app.isLoading)
-//         const error = useAppSelector(state => state.app.error)
-//
-//         const getPhotosHandler = () => {
-//             dispatch(getPhotosTC())
-//         };
+    // App
+    // const App = () => {
+    //     const dispatch = useAppDispatch()
+    //
+    //     const photos = useAppSelector(state => state.app.photos)
+    //     const isLoading = useAppSelector(state => state.app.isLoading)
+    //     const error = useAppSelector(state => state.app.error)
+    //
+    //     const getPhotosHandler = () => {
+    //         dispatch(getPhotosTC())
+    //     };
 //
 //         return (
 //             <>
 //                 <h1>📸 Фото</h1>
 //                 <h2 style={{color: 'red'}}>{!!error && error}</h2>
-    {/*            {isLoading && <Loader/>}*/}
-    {/*            {*/}
-    {/*                photos.map(p => {*/}
-    {/*                    return <div key={p.id}>*/}
-    {/*                        <b>title</b>: {p.title}*/}
-    {/*                        <div><img src={p.thumbnailUrl} alt=""/></div>*/}
-    {/*                    </div>*/}
-    {/*                })*/}
-    {/*            }*/}
-    {/*            <button onClick={getPhotosHandler}>Подгрузить фотографии</button>*/}
-    {/*        </>*/}
-    {/*    )*/}
-    {/*}*/}
+//                 {isLoading && <Loader/>}
+//                 {
+//                     photos.map(p => {
+//                         return <div key={p.id}>
+//                             <b>title</b>: {p.title}
+//                             <div><img src={p.thumbnailUrl} alt=""/></div>
+//                         </div>
+//                     })
+//                 }
+//
+//                 <button onClick={getPhotosHandler}>Подгрузить фотографии</button>
+//             </>
+//         )
+//     }
 
-
-    {/*const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);*/}
-    {/*root.render(<Provider store={store}> <App/></Provider>)*/}
+// @ts-ignore
+//     const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+//     root.render(<Provider store={store}> <App/></Provider>)
 
 
 // Описание:
@@ -831,10 +829,9 @@ function App() {
 //         avatar: string
 //         email: string
 //         first_name: string
-//         id: 1
+    //     id: 1
     //     last_name: string
     // }
-    //
     // type ColorType = {
     //     color: string
     //     id: number
@@ -842,7 +839,6 @@ function App() {
     //     pantone_value: string
     //     year: number
     // }
-    //
     // type CommonResponseType<T> = {
     //     total: number
     //     total_pages: number
@@ -874,9 +870,8 @@ function App() {
 //         users: [] as UserType[],
 //         colors: [] as ColorType[],
 //     }
-//
-//     type InitStateType = typeof initState
-    //
+
+    // type InitStateType = typeof initState
     // const appReducer = (state: InitStateType = initState, action: ActionsType): InitStateType => {
     //     switch (action.type) {
     //         case 'APP/GET-USERS':
@@ -891,7 +886,6 @@ function App() {
     //             return state
     //     }
     // }
-    //
     // const getUsersAC = (users: UserType[]) => ({type: 'APP/GET-USERS', users} as const)
     // const getColorsAC = (colors: ColorType[]) => ({type: 'APP/GET-COLORS', colors} as const)
     // const setLoadingAC = (isLoading: boolean) => ({type: 'APP/IS-LOADING', isLoading} as const)
@@ -907,8 +901,6 @@ function App() {
 //         dispatch(setError(message))
 //         dispatch(setLoadingAC(false))
 //     }
-
-
 // Thunk
 //     const getUsersTC = (): AppThunk => (dispatch) => {
 //         dispatch(setLoadingAC(true))
@@ -919,6 +911,7 @@ function App() {
 //             })
 //             .catch((e: AxiosError) => {
 //                 // XXX
+//                 baseErrorHandler( dispatch, e.message)
 //             })
 //     }
 
@@ -931,6 +924,7 @@ function App() {
     //         })
     //         .catch((e: AxiosError) => {
     //             // XXX
+    //             baseErrorHandler( dispatch, e.message)///Внимание
     //         })
     // }
 
@@ -938,33 +932,31 @@ function App() {
 //     const rootReducer = combineReducers({
 //         app: appReducer,
 //     })
-//
+
 //     const store = createStore(rootReducer, applyMiddleware(thunk))
 //     type RootState = ReturnType<typeof store.getState>
 //     type AppDispatch = ThunkDispatch<RootState, unknown, ActionsType>
 //     type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, ActionsType>
 //     const useAppDispatch = () => useDispatch<AppDispatch>()
 //     const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
-
-
-// COMPONENTS
+// // COMPONENTS
 // Loader
-//     export const Loader = () => {
+//     const Loader = () => {
 //         return (
 //             <h1>Loading ...</h1>
 //         )
 //     }
-//
-//
-//     const App = () => {
-//         return (
-//             <>
-//                 <h1>Reqres API</h1>
-//                 <Users/>
-//                 <Colors/>
-//             </>
-//         )
-//     }
+
+
+    // const App = () => {
+    //     return (
+    //         <>
+    //             <h1>Reqres API</h1>
+    //             <Users/>
+    //             <Colors/>
+    //         </>
+    //     )
+    // }
 
     // const Users = () => {
     //     const dispatch = useAppDispatch()
@@ -975,26 +967,26 @@ function App() {
     //     useEffect(() => {
     //         dispatch(getUsersTC())
     //     }, [])
-    //
-    //     return (
-    //         <div>
-    //             <h2>Users</h2>
-    //             {!!error && <h2 style={{color: 'red'}}>{error}</h2>}
-    {/*            {isLoading && <Loader/>}*/}
-    {/*            <div style={{display: 'flex'}}>*/}
-    {/*                {*/}
-    {/*                    users.map(u => {*/}
-    {/*                        return (*/}
-    {/*                            <div key={u.id} style={{marginRight: '25px'}}>*/}
-    {/*                                <p>{u.first_name}</p>*/}
-    {/*                                <img src={u.avatar} alt=""/>*/}
-    {/*                            </div>*/}
-    {/*                        )*/}
-    {/*                    })*/}
-    {/*                }</div>*/}
-    {/*        </div>*/}
-    {/*    )*/}
-    {/*}*/}
+
+       //  return (
+       //      <div>
+       //         <h2>Users</h2>
+       //         {!!error && <h2 style={{color: 'red'}}>{error}</h2>}
+       //          {isLoading && <Loader/>}
+       //          <div style={{display: 'flex'}}>
+       //              {
+       //                 users.map(u => {
+       //                      return (
+       //                          <div key={u.id} style={{marginRight: '25px'}}>
+       //                              <p>{u.first_name}</p>
+       //                              <img src={u.avatar} alt=""/>
+       //                          </div>
+       //                      )
+       //              } )}
+       //          </div>
+       //      </div>
+       // )
+       //              }
 
     // const Colors = () => {
     //     const dispatch = useAppDispatch()
@@ -1005,32 +997,31 @@ function App() {
     //     useEffect(() => {
     //         dispatch(getColorsTC())
     //     }, [])
-    //
-    //     return (
-    //         <div>
-    //             <h2>Colors</h2>
-    //             {!!error && <h2 style={{color: 'red'}}>{error}</h2>}
-    //             {isLoading && <Loader/>}
-    //             <div style={{display: 'flex'}}>
-    //                 {
-    //                     colors.map(c => {
-    //                         return (
-    //                             <div key={c.id} style={{marginRight: '25px'}}>
-    //                                 <p>{c.name}</p>
-    //                                 <div style={{backgroundColor: c.color, width: '128px', height: '30px'}}>
-    //                                     <b>{c.color}</b>
-    //                                 </div>
-    //                             </div>
-    //                         )
-    //                     })
-    //                 }</div>
-    //         </div>
-    //     )
-    // }
-    //
-    // const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
-    // root.render(<Provider store={store}> <App/></Provider>)
 
+     //    return (
+     //        <div>
+     //            <h2>Colors</h2>
+     //            {!!error && <h2 style={{color: 'red'}}>{error}</h2>}
+     //            {isLoading && <Loader/>}
+     //            <div style={{display: 'flex'}}>
+     //                {
+     //                    colors.map(c => {
+     //                        return (
+     //                            <div key={c.id} style={{marginRight: '25px'}}>
+     //                                <p>{c.name}</p>
+     //                                <div style={{backgroundColor: c.color, width: '128px', height: '30px'}}>
+     //                                     <b>{c.color}</b>
+     //                                 </div>
+     //                             </div>
+     //                         )
+     //                     })
+     //                 }</div>
+     //         </div>
+     //     )
+     // }
+      //@ts-ignore
+    //     const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+    // root.render(<Provider store={store}> <App/></Provider>)
 
 // Описание:
 // Перед вами заголовки Users, Colors и Loading ...
@@ -1042,15 +1033,14 @@ function App() {
 // Код чинить не нужно.
 // Пример ответа: dispatch(setLoadingAC(false))
 
-
     //8
-
-    import React, { useEffect } from 'react'
-    import ReactDOM from 'react-dom/client';
-    import { applyMiddleware, combineReducers, legacy_createStore as createStore, Dispatch } from 'redux'
-    import thunk, { ThunkAction, ThunkDispatch } from 'redux-thunk'
-    import { Provider, TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
-    import axios, { AxiosError } from 'axios'
+    //
+    // import React, { useEffect } from 'react'
+    // import ReactDOM from 'react-dom/client';
+    // import { applyMiddleware, combineReducers, legacy_createStore as createStore, Dispatch } from 'redux'
+    // import thunk, { ThunkAction, ThunkDispatch } from 'redux-thunk'
+    // import { Provider, TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
+    // import axios, { AxiosError } from 'axios'
 
 // TYPES
     type UserType = {
@@ -1060,7 +1050,6 @@ function App() {
         id: 1
         last_name: string
     }
-
     type ColorType = {
         color: string
         id: number
@@ -1068,7 +1057,6 @@ function App() {
         pantone_value: string
         year: number
     }
-
     type CommonResponseType<T> = {
         total: number
         total_pages: number
@@ -1080,10 +1068,8 @@ function App() {
         }
         data: T
     }
-
 // API
     const instance = axios.create({baseURL: 'https://reqres.in/api/'})
-
     const reqresAPI = {
         getUsers() {
             return instance.get<CommonResponseType<UserType[]>>('users?delay=3')
@@ -1092,8 +1078,6 @@ function App() {
             return instance.get<CommonResponseType<ColorType[]>>('colors?delay=3')
         }
     }
-
-
 // Reducer
     const initState = {
         isLoading: false,
@@ -1101,7 +1085,7 @@ function App() {
         users: [] as UserType[],
         colors: [] as ColorType[],
     }
-
+//
     type InitStateType = typeof initState
 
     const appReducer = (state: InitStateType = initState, action: ActionsType): InitStateType => {
@@ -1118,7 +1102,6 @@ function App() {
                 return state
         }
     }
-
     const getUsersAC = (users: UserType[]) => ({type: 'APP/GET-USERS', users} as const)
     const getColorsAC = (colors: ColorType[]) => ({type: 'APP/GET-COLORS', colors} as const)
     const setLoadingAC = (isLoading: boolean) => ({type: 'APP/IS-LOADING', isLoading} as const)
@@ -1134,13 +1117,13 @@ function App() {
         dispatch(actionCreator(data))
         dispatch(setLoadingAC(false))
     }
-
 // Thunk
     const getUsersTC = (): AppThunk => (dispatch) => {
         dispatch(setLoadingAC(true))
         reqresAPI.getUsers()
             .then((res) => {
                 // XXX
+                baseSuccessHandler(dispatch,()=> {}, 2)
             })
             .catch((e: AxiosError) => {
                 dispatch(setError(e.message))
@@ -1159,12 +1142,10 @@ function App() {
                 dispatch(setLoadingAC(false))
             })
     }
-
-// Store
+    // Store
     const rootReducer = combineReducers({
         app: appReducer,
     })
-
     const store = createStore(rootReducer, applyMiddleware(thunk))
     type RootState = ReturnType<typeof store.getState>
     type AppDispatch = ThunkDispatch<RootState, unknown, ActionsType>
@@ -1172,17 +1153,14 @@ function App() {
     const useAppDispatch = () => useDispatch<AppDispatch>()
     const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
 
-
 // COMPONENTS
 // Loader
-    export const Loader = () => {
+    const Loader = () => {
         return (
             <h1>Loading ...</h1>
         )
     }
-
-
-    const App = () => {
+    export const App = () => {
         return (
             <>
                 <h1>Reqres API</h1>
@@ -1210,18 +1188,18 @@ function App() {
                 <div style={{display: 'flex'}}>
                     {
                         users.map(u => {
-                            return (
-                                <div key={u.id} style={{marginRight: '25px'}}>
-                                    <p>{u.first_name}</p>
-                                    <img src={u.avatar} alt=""/>
-                                </div>
-                            )
-                        })
-                    }</div>
+                                return (
+                                    <div key={u.id} style={{marginRight: '25px'}}>
+                                        <p>{u.first_name}</p>
+                                        <img src={u.avatar} alt=""/>
+                                    </div>
+                                )
+                            }
+                        )}
+                </div>
             </div>
         )
     }
-
     const Colors = () => {
         const dispatch = useAppDispatch()
         const colors = useAppSelector(state => state.app.colors)
@@ -1252,10 +1230,11 @@ function App() {
                     }</div>
             </div>
         )
-    }
 
+//@ts-ignore
     const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
-    root.render(<Provider store={store}> <App/></Provider>)
+//@ts-ignore
+    root.render(<Provider store={store}> <App/></Provider>)}
 
 
 // Описание:
@@ -1268,8 +1247,8 @@ function App() {
 // Ответ дайте через пробел.
 // Пример ответа: dispatch(baseSuccessHandler(1,2,3))  dispatch(baseSuccessHandler(3,2,1)
 
-    return <div>Hi</div>
+    // return <div>Hi</div>
 
 
-}
-export default App;
+// }
+// export default App;

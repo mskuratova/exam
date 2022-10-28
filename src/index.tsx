@@ -1,136 +1,162 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
+// import {App} from './44';
 import reportWebVitals from './reportWebVitals';
+import {BrowserRouter, redirect, Route, Routes, useNavigate} from "react-router-dom";
+import {useFormik} from "formik";
+import {Provider, TypedUseSelectorHook, useDispatch, useSelector} from 'react-redux';
+import {applyMiddleware, combineReducers, createStore, Dispatch} from "redux";
+import thunk, {ThunkAction, ThunkDispatch} from "redux-thunk";
+import axios, {AxiosError} from "axios";
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
-// // Types
-//       type PostType = {
-//         body: string
-//         id: number
-//         title: string
-//         userId: number
-//     }
-// Api
-//     const instance = axios.create({
-//         baseURL: 'https://jsonplaceholder.typicode.com/'
-//     })
+// const root = ReactDOM.createRoot(
+//   document.getElementById('root') as HTMLElement
+// );
+// root.render(
+//   <React.StrictMode>
+//     <App />
+//   </React.StrictMode>
+// );
 //
-//     const postsAPI = {
-//         getPosts() {
-//             return instance.get<PostType[]>('posts?_limit=15')
-//         },
-//         updatePostTitle(post: PostType) {
-//             return instance.put<PostType>(`posts/${post.id}`, post)
-//         }
-//     }
+// // If you want to start measuring performance in your app, pass a function
+// // to log results (for example: reportWebVitals(console.log))
+// // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+// reportWebVitals();
+//
+
+// console.log = () => {
+//     };
+
+// Api
+    const instance = axios.create({
+        baseURL: 'https://reqres.in/api/'
+    })
+
+    const api = {
+        getUsers() {
+            return instance.get('users?delay=1&per_page=12')
+        }
+    }
+
 
 // Reducer
-//     const initState = [] as PostType[]
-//
-//     type InitStateType = typeof initState
+    const initState = {
+        isLoading: false,
+        users: [] as any[]
+    }
 
-// const postsReducer = (state: InitStateType = initState, action: ActionsType) => {
-//     switch (action.type) {
-//         case 'POSTS/GET-POSTS':
-//             return action.posts
-//
-//         case 'POSTS/UPDATE-POST-TITLE':
-//             return state.map((p) => {
-//                 if (p.id === action.post.id) {
-//                     return {...p, title: action.post.title}
-//                 } else {
-//                     return p
-//                 }
-//             })
-//
-//         default:
-//             return state
-//     }
-// }
-//
-// const getPostsAC = (posts: PostType[]) => ({type: 'POSTS/GET-POSTS', posts} as const)
-// const updatePostTitleAC = (post: PostType) => ({type: 'POSTS/UPDATE-POST-TITLE', post} as const)
-// type ActionsType = ReturnType<typeof getPostsAC> | ReturnType<typeof updatePostTitleAC>
-//
-// const getPostsTC = (): AppThunk => (dispatch) => {
-//     postsAPI.getPosts()
-//         .then((res) => {
-//             dispatch(getPostsAC(res.data))
-//         })
-// }
+    type InitStateType = typeof initState
 
-// const updatePostTC = (postId: number): AppThunk => (dispatch,
-//                                                     getState:() => {posts: PostType[]}) => {
-//     try {
-//         console.log("1")
-//         // const currentPost = getState().find((p: PostType) => p.id === postId)
-//         const currentPost = getState().posts.find((p: PostType) => p.id === postId)
-//         console.log(currentPost)
-//         if (currentPost) {
-//             const payload = {...currentPost, title: 'Летим 🚀'}
-//             postsAPI.updatePostTitle(payload)
-//                 .then((res) => {
-//                     dispatch(updatePostTitleAC(res.data))
-//                 })
-//         }
-//     } catch (e) {
-//         alert('Обновить пост не удалось 😢')
-//     }
-// }
+const appReducer = (state: InitStateType = initState, action: ActionsType): InitStateType => {
+    switch (action.type) {
+        case 'APP/SET-USERS':
+            console.log('1')
+            /* 1 */
+            return {...state, users: action.users}
+        case 'APP/IS-LOADING':
+            console.log('2')
+            /* 2 */
+            return {...state, isLoading: action.isLoading}
+        default:
+            return state
+    }
+}
+
+// Actions
+    const setUsersAC = (users: any[]) => ({type: 'APP/SET-USERS', users} as const)
+    const setLoadingAC = (isLoading: boolean) => ({type: 'APP/IS-LOADING', isLoading} as const)
+    type ActionsType = | ReturnType<typeof setUsersAC> | ReturnType<typeof setLoadingAC>
+
+
+// Thunk
+    const getUsersTC = (): AppThunk => (dispatch) => {
+        /* 3 */
+        console.log('3')
+        dispatch(setLoadingAC(true))
+        api.getUsers()
+            .then((res) => {
+                console.log('4')
+                /* 4 */
+                dispatch(setLoadingAC(false))
+                console.log('5')
+                /* 5 */
+                dispatch(setUsersAC(res.data.data))
+            })
+    }
 
 // Store
-//     const rootReducer = combineReducers({
-//         posts: postsReducer,
-//     })
-//
-//     const store = createStore(rootReducer, applyMiddleware(thunk))
-//     type RootState = ReturnType<typeof store.getState>
-//     type AppDispatch = ThunkDispatch<RootState, unknown, ActionsType>
-//     type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, ActionsType>
-//     const useAppDispatch = () => useDispatch<AppDispatch>()
-//     const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
+    const rootReducer = combineReducers({
+        app: appReducer,
+    })
+
+    const store = createStore(rootReducer, applyMiddleware(thunk))
+    type RootState = ReturnType<typeof store.getState>
+    type AppDispatch = ThunkDispatch<RootState, unknown, ActionsType>
+    type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, ActionsType>
+    const useAppDispatch = () => useDispatch<AppDispatch>()
+    const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
+
+
+// Loader
+    export const Loader = () => {
+        console.log('6')
+        /* 6 */
+        return (
+            <h1>Loading ...</h1>
+        )
+    }
+
+
+// Login
+    export const Login = () => {
+        console.log('7')
+/* 7 */
+
+    const users = useAppSelector(state => state.app.users)
+    const isLoading = useAppSelector(state => state.app.isLoading)
+
+    return (
+        <div>
+            {isLoading && <Loader/>}
+            {users.map((u) => <p key={u.id}>{u.email}</p>)}
+            <h1>В данном задании на экран смотреть не нужно. Рекомендуем взять ручку, листик и последовательно, спокойно
+                расставить цифры в нужном порядке. Прежде чем давать ответ обязательно посчитайте к-во цифр и сверьте с
+                подсказкой. Удачи 🚀
+            </h1>
+        </div>
+    );
+}
 
 // App
-//     const App = () => {
-//         const dispatch = useAppDispatch()
-//         const posts = useAppSelector(state => state.posts)
-//
-//         useEffect(() => {
-//             dispatch(getPostsTC())
-//         }, [])
-//
-//     const updatePostHandler = (postId: number) => {
-//         dispatch(updatePostTC(postId))
-//     }
-//
-//     return (
-//         <>
-//             <h1>📜 Список постов</h1>
-//             {
-//                 posts.map(p => {
-//                     return <div key={p.id}>
-//                         <b>title</b>: {p.title}
-//                         <button onClick={() => updatePostHandler(p.id)}>Обновить пост</button>
-//                     </div>
-//                 })
-//             }
-//         </>
-//     )
-// }
-//
-// const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
-// root.render(<Provider store={store}> <App/></Provider>)
+    export const App = () => {
+        console.log('8')
+        /* 8 */
+        const dispatch = useAppDispatch()
+
+        useEffect(() => {
+            /* 9 */
+            console.log('9')
+            dispatch(getUsersTC())
+        }, [])
+
+/* 10 */
+        console.log('10')
+    return (
+        <Routes>
+            <Route path={''} element={<Login/>}/>
+        </Routes>
+    )
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+root.render(<Provider store={store}><BrowserRouter><App/></BrowserRouter></Provider>)
+
+// Описание:
+// Задача: напишите в какой последовательности вызовутся числа при успешном запросе.
+// Подсказка: будет 13 чисел.
+// Ответ дайте через пробел.
+// Пример ответа:    1 2 3 4 5 6 7 8 9 10 1 2 3
+
+
